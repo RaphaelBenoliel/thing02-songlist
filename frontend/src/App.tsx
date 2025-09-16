@@ -4,20 +4,22 @@ import SongsTable from "./components/SongsTable";
 import type { Song } from "./types";
 import "./App.css";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 function App() {
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const fetchSongs = async () => {
     try {
       setLoading(true);
       const res = await fetch("http://localhost:3000/api/songs");
+      if (!res.ok) throw new Error("Failed to load songs");
       const data = await res.json();
       setSongs(data);
-    } catch (err: unknown) {
-      console.error("Failed to load songs:", err);
-      setError("Failed to load songs");
+    } catch (e) {
+      toast.error("Failed to load songs");
     } finally {
       setLoading(false);
     }
@@ -30,35 +32,54 @@ function App() {
   const handleUpload = async (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
-
     try {
       setLoading(true);
-      setError(null);
-      await fetch("http://localhost:3000/api/songs/upload", {
+      const res = await fetch("http://localhost:3000/api/songs/upload", {
         method: "POST",
         body: formData,
       });
+      if (!res.ok) {
+        const msg = await res.text();
+        throw new Error(msg || "Upload failed");
+      }
+      toast.success("Songs uploaded successfully!");
       await fetchSongs();
-    } catch (err: unknown) {
-      console.error("Upload failed:", err);
-      setError("Upload failed");
+    } catch (e) {
+      toast.error("Upload failed. Please check the file.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="container">
-      <header>
-        <h1>Song List</h1>
-        <small>Thing or Two Assignment</small>
-      </header>
+    <>
+      <div className="topbar">
+        <span className="brand">Thing or Two.</span>
+      </div>
 
-      <UploadButton onFileSelect={handleUpload} />
+      <div className="container">
+        <header>
+          <h1>Song List</h1>
+          <small>Thing or Two Assignment</small>
+        </header>
 
-      {error && <div className="error">{error}</div>}
-      {loading ? <div className="spinner" /> : <SongsTable songs={songs} />}
-    </div>
+        <div className="toolbar">
+          <UploadButton onFileSelect={handleUpload} />
+        </div>
+
+        {loading ? (
+          <div className="spinner" />
+        ) : songs.length === 0 ? (
+          <div className="empty-frame">
+            🎶 No songs uploaded yet. <b>Upload a CSV to get started!</b>
+          </div>
+        ) : (
+          <SongsTable songs={songs} />
+        )}
+      </div>
+
+      <ToastContainer position="top-right" autoClose={3000} />
+    </>
   );
 }
 

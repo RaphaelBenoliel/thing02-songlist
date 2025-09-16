@@ -1,5 +1,4 @@
-import React from "react";
-import "./UploadButton.css"; // import the CSS
+import "./UploadButton.css";
 
 interface UploadButtonProps {
   onFileSelect: (file: File) => void;
@@ -16,6 +15,7 @@ export default function UploadButton({ onFileSelect }: UploadButtonProps) {
           onChange={(e) => {
             if (e.target.files?.[0]) {
               onFileSelect(e.target.files[0]);
+              e.currentTarget.value = "";
             }
           }}
         />
