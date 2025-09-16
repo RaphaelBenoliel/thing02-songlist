@@ -11,50 +11,72 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { parse } from 'csv-parse/sync';
 import { SongsService } from './songs.service';
- 
+
 @Controller('api/songs')
 export class SongsController {
   constructor(private readonly songs: SongsService) {}
 
+  /**
+   * GET /api/songs
+   * Returns a list of all songs, ordered by the given query param.
+   * @param order - The column to order by ('band' | 'name' | 'year')
+   */
   @Get()
   async list(@Query('order') order: 'band' | 'name' | 'year' = 'band') {
     return this.songs.list(order);
   }
 
+  /**
+   * POST /api/songs/upload
+   * Upload a CSV file containing songs.
+   * Expected headers: Song Name | name, Band | band, Year | year
+   * - Converts values to lowercase
+   * - Validates that year is numeric
+   */
   @Post('upload')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: memoryStorage(),
-      limits: { fileSize: 2 * 1024 * 1024 },
-    }),
-  )
+  @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
   async upload(@UploadedFile() file?: Express.Multer.File) {
-    if (!file) throw new BadRequestException('CSV file is required under field "file".');
+    if (!file) {
+      throw new BadRequestException('CSV file is required.');
+    }
 
     try {
-      const csv = file.buffer.toString('utf-8');
-      const records = parse(csv, {
+      // Parse CSV → array of objects (keys come from headers)
+      const records: Record<string, string>[] = parse(file.buffer, {
         columns: true,
         skip_empty_lines: true,
-        delimiter: ';',
         trim: true,
-      }) as Array<Record<string, string>>;
+      });
 
+      // Normalize + validate each row
       const prepared = records.map((r, idx) => {
-        const name = (r['Song Name'] || r['name'] || '').toString().toLowerCase();
-        const band = (r['Band'] || r['band'] || '').toString().toLowerCase();
-        const yearStr = (r['Year'] || r['year'] || '').toString().trim();
+        const name = (r['name'] || r['Name'] || r['Song Name'] || '')
+          .toString()
+          .toLowerCase();
+
+        const band = (r['band'] || r['Band'] || '').toString().toLowerCase();
+
+        const yearStr = (r['year'] || r['Year'] || '').toString().trim();
         const year = Number.parseInt(yearStr, 10);
 
         if (!name || !band || !Number.isFinite(year)) {
-          throw new BadRequestException(`Invalid row at index ${idx}: ${JSON.stringify(r)}`);
+          throw new BadRequestException(
+            `Invalid row at index ${idx}: ${JSON.stringify(r)}`,
+          );
         }
+
         return { name, band, year };
       });
 
+      // Save to DB
       const result = await this.songs.upsertMany(prepared);
       return { ok: true, ...result };
-    } catch (e) {
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new BadRequestException(
+          `Failed to parse or import CSV: ${error.message}`,
+        );
+      }
       throw new BadRequestException('Failed to parse or import CSV.');
     }
   }
