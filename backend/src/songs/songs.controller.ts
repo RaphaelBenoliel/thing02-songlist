@@ -41,14 +41,19 @@ export class SongsController {
     }
 
     try {
-      // Parse CSV → array of objects (keys come from headers)
+      const sample = file.buffer.toString('utf8').split('\n')[0];
+      let delimiter = ',';
+      if (sample.includes(';')) delimiter = ';';
+      if (sample.includes('\t')) delimiter = '\t';
+
+      // Parse CSV
       const records: Record<string, string>[] = parse(file.buffer, {
         columns: true,
         skip_empty_lines: true,
         trim: true,
+        delimiter,
       });
 
-      // Normalize + validate each row
       const prepared = records.map((r, idx) => {
         const name = (r['name'] || r['Name'] || r['Song Name'] || '')
           .toString()
@@ -68,7 +73,6 @@ export class SongsController {
         return { name, band, year };
       });
 
-      // Save to DB
       const result = await this.songs.upsertMany(prepared);
       return { ok: true, ...result };
     } catch (error: unknown) {
