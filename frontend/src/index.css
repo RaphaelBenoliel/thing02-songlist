@@ -11,7 +11,6 @@ body {
   color: #222;
 }
 
-/* ודא שה־root יתפוס את כל המסך */
 #root {
   display: block;
 }
