@@ -146,6 +146,20 @@ thriller;michael jackson;1982
 
 ---
 
+---
+
+## Screenshots
+- **First screen Empty Table:**  
+  ![Upload CSV and table view](frontend/public/screenshots/empty_table.png)
+- **Upload & Table (ordered by Band):**  
+  ![Upload CSV](frontend/public/screenshots/upload.png)
+  
+  ![table view](frontend/public/screenshots/table_view.png)
+- **Search & Pagination (extra):**  
+  ![Search and pagination demo](frontend/public/screenshots/search_and_pagination.png)
+
+---
+
 ## Local Development (without Docker)
 
 In one terminal (backend):
