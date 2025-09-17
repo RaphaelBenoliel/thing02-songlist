@@ -36,8 +36,11 @@ export class SongsController {
   @Post('upload')
   @UseInterceptors(FileInterceptor('file', { storage: memoryStorage() }))
   async upload(@UploadedFile() file?: Express.Multer.File) {
-    if (!file) {
-      throw new BadRequestException('CSV file is required.');
+    if (!file) throw new BadRequestException('CSV file is required.');
+    if (
+      !/text\/(csv|plain)|application\/vnd\.ms-excel/.test(file.mimetype || '')
+    ) {
+      throw new BadRequestException('Only CSV files are allowed.');
     }
 
     try {
