@@ -1,24 +1,51 @@
-# 🎵 Thing or Two – Full Stack Developer Assignment
+# 🎵 Thing or Two — Song List (Full-Stack Assignment)
 
-This project was developed as part of the **Junior Full Stack Developer test** at **Thing or Two**.  
-It implements a full-stack application that imports a CSV of songs, stores them in a SQL database, and displays them in a clean React UI.
+A small full-stack app that uploads a CSV of songs, normalizes the data, stores it in PostgreSQL, and shows it in a clean React table.
 
----
-
-## 🚀 Features
-- **CSV Upload** – Upload a list of songs directly from a `.csv` file.
-- **Data Processing** – All song fields (name, band, year) are normalized to lowercase before insertion.
-- **Database Storage** – Songs are stored in a PostgreSQL database with proper schema using **TypeORM**.
-- **API (NestJS)** – Backend provides REST endpoints to upload songs and retrieve them sorted by **band name**.
-- **Frontend (React + TypeScript)** – Simple, modern, responsive table UI with clean styling.
-- **Dockerized Setup** – Uses `docker-compose` for easy startup without installing PostgreSQL locally.
+- **Backend:** NestJS + TypeORM + PostgreSQL  
+- **Frontend:** React (Vite) + TypeScript  
+- **Infra:** Docker & Docker Compose
 
 ---
 
-## 🛠️ Tech Stack
-- **Backend:** [NestJS](https://nestjs.com/) + [TypeORM](https://typeorm.io/) + PostgreSQL  
-- **Frontend:** [React](https://react.dev/) + TypeScript + Vite  
-- **Infrastructure:** Docker & Docker Compose  
+## Table of Contents
+1. [Features](#features)
+2. [Tech Stack](#tech-stack)
+3. [Project Structure](#project-structure)
+4. [Quick Start](#-quick-start)
+5. [API](#api)
+6. [CSV Format](#csv-format)
+7. [Frontend UI](#frontend-ui)
+8. [Local Development (without Docker)](#local-development-without-docker)
+9. [Configuration](#configuration)
+10. [Troubleshooting](#troubleshooting)
+11. [What Was Evaluated](#what-was-evaluated)
+12. [Author](#author)
+
+---
+
+## Features
+
+### ✅ Core (per the assignment)
+- **CSV Upload** — Upload a `.csv` file of songs.
+- **Normalization** — Transform `name`, `band`, `year` to lowercase / parsed year.
+- **Storage** — Save into a **SQL** DB (PostgreSQL here) via TypeORM.
+- **Display** — **Simple table ordered by *Band* name**.
+
+### ✨ Extras (nice-to-have, beyond the brief)
+- Client‑side search (by song/band/year)
+- Results count
+- Client‑side pagination (10 / 25 / 50)
+- Loading spinner and basic error toasts
+
+> The extras are optional and meant to make review easier. The app fully satisfies the core scope even without them.
+
+---
+
+## Tech Stack
+- **Backend:** NestJS, TypeORM, PostgreSQL  
+- **Frontend:** React, Vite, TypeScript  
+- **Infra:** Docker, Docker Compose
 
 ---
 
@@ -44,68 +71,160 @@ thing02-songlist/
 
 ---
 
-## ⚙️ Setup & Run
+## 📦 Quick Start
 
-### 1️⃣ Clone Repository
-```bash
-git clone https://github.com/YOUR_USERNAME/thing02-songlist.git
-cd thing02-songlist
-```
-
-### 2️⃣ Run with Docker Compose
-Make sure Docker is running, then start the stack:
+### 1) Start DB + Backend (Docker only)
+From the repository root:
 ```bash
 docker compose up --build
 ```
+- API base URL: `http://localhost:3000`
+- Health check (songs): `http://localhost:3000/api/songs`
 
-- **Backend API** → [http://localhost:3000/api/songs](http://localhost:3000/api/songs)  
-- **Frontend App** → [http://localhost:5173](http://localhost:5173)  
+> You can also upload a CSV via API directly (see **API** section).
 
-### 3️⃣ Upload CSV
-- Use the **Upload** button in the UI to upload a `.csv` file (must include columns: `name, band, year`).  
-- The data will be normalized, stored in PostgreSQL, and displayed in the table.
+### 2) Start the Frontend (single local command)
+From a second terminal:
+```bash
+cd frontend
+npm ci
+npm run dev
+```
+- UI URL: `http://localhost:5173`
 
----
-
-## 📌 API Endpoints
-| Method | Endpoint              | Description                      |
-|--------|-----------------------|----------------------------------|
-| `GET`  | `/api/songs`          | Fetch all songs (ordered by band)|
-| `POST` | `/api/songs/upload`   | Upload CSV file and insert songs |
-
----
-
-## 🧑‍💻 Development Notes
-- **Best Practices:**  
-  - Code organized in modules (NestJS `SongsModule`, React `components/`).  
-  - Error handling with `try/catch`.  
-  - TypeScript interfaces (`Song`) for type safety.  
-  - Configurable via `.env` and Docker environment variables.  
-
-- **Scalability:**  
-  - Easy to extend with more endpoints (e.g., search, pagination).  
-  - React components modular and reusable.  
+> **Why split?** The brief requires running without a local DB (Docker for DB + API). Keeping the frontend as a lightweight Vite dev server makes review fast and avoids extra Docker setup not required by the test.
 
 ---
 
-## 🎨 Frontend UI
-- Clean, modern design with responsive table.  
-- Styled with plain CSS for simplicity (no external UI framework).  
-- Hover effects, error states, and loading spinner included.  
+## API
+
+**Base URL:** `http://localhost:3000`
+
+| Method | Endpoint            | Description                         |
+|-------:|---------------------|-------------------------------------|
+| GET    | `/api/songs`        | List all songs **ordered by band**  |
+| POST   | `/api/songs/upload` | Upload a CSV (multipart/form-data)  |
+
+**Examples:**
+```bash
+# Upload
+curl -F "file=@Song_list.csv" http://localhost:3000/api/songs/upload
+# → { "ok": true, "total": 11 }
+
+# List
+curl http://localhost:3000/api/songs
+# → [{ "id":1, "name":"crazy", "band":"aerosmith", "year":1990 }, ...]
+```
 
 ---
 
-## ✅ Assignment Requirements
-✔ CSV parsing and normalization  
-✔ Songs stored in PostgreSQL  
-✔ API built with NestJS  
-✔ React frontend with clean table  
-✔ Docker & Docker Compose setup  
-✔ Clean code, TypeScript, documentation  
+## CSV Format
+
+- **Headers (flexible):** supports either
+  - `name, band, year`
+  - or `Song Name, Band, Year`
+- **Delimiters:** comma `,` or semicolon `;`
+
+**Examples:**
+```csv
+name,band,year
+crazy,aerosmith,1990
+imagine,john lennon,1971
+```
+
+```csv
+Song Name;Band;Year
+like a rolling stone;bob dylan;1965
+thriller;michael jackson;1982
+```
 
 ---
 
-## 📧 Author
-Developed by **Raphael Ben Oliel**  
-📍 Israel  
-✉️ raphael2gb@gmail.com  
+## Frontend UI
+- **Simple table ordered by Band** (meets core requirement)
+- Optional: search, results count, pagination (10/25/50), loading states
+
+---
+
+## Local Development (without Docker)
+
+In one terminal (backend):
+```bash
+cd backend
+npm install
+npm run start:dev
+# API on http://localhost:3000
+```
+
+In another terminal (frontend):
+```bash
+cd frontend
+npm install
+npm run dev
+# App on http://localhost:5173
+```
+
+You’ll need a local PostgreSQL instance and environment variables set (see **Configuration**).
+
+---
+
+## Configuration
+
+The Docker setup provides sane defaults. If you run locally, set these (e.g., `.env` in `backend/`):
+
+```env
+# backend/.env
+DB_HOST=localhost       # or songsdb when using docker compose
+DB_PORT=5432
+DB_USER=postgres
+DB_PASS=postgres
+DB_NAME=songsdb
+CORS_ORIGIN=http://localhost:5173
+```
+
+---
+
+## Troubleshooting
+
+1) **API starts before Postgres is ready**  
+   Nest retries automatically. If needed:
+   ```bash
+   docker compose restart backend
+   ```
+
+2) **Changed schema and now sync fails**  
+   Drop the table and let TypeORM recreate it:
+   ```bash
+   docker exec -it songsdb psql -U postgres -d songsdb -c 'DROP TABLE IF EXISTS songs CASCADE;'
+   docker compose restart backend
+   ```
+
+3) **CSV upload returns 400**  
+   - Ensure headers are present (`name/band/year` or `Song Name/Band/Year`)  
+   - `year` must be numeric  
+   - File must be `.csv` (comma or semicolon delimited)
+
+---
+
+## What Was Evaluated
+
+### ✅ According to the brief
+- Clean code & project structure (NestJS modules, React components)
+- Error handling (try/catch, helpful messages)
+- Type safety (TypeScript across backend & frontend)
+- **Runs without a local DB** (Docker & Docker Compose)
+- **Displays data in a simple table ordered by Band**
+
+### ✨ Extras implemented (optional, beyond scope)
+- Client‑side search & results count
+- Client‑side pagination (10/25/50)
+- Loading & basic error toasts
+
+> These extras are clearly optional and do not change the core scope. They’re included to improve UX.
+
+---
+
+## Author
+
+**Raphael Benoliel**  
+📧 [raphael2gb@gmail.com](mailto:raphael2gb@gmail.com)
