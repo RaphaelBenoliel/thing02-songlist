@@ -1,22 +1,22 @@
-# שלב בנייה
+# builder stage
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# התקנת תלויות
+# install dependencies
 COPY package*.json ./
 RUN npm install
 
-# העתקת קוד
+# COPY source files
 COPY . .
 
-# בנייה
+# build the project
 RUN npm run build
 
-# שלב ריצה
+# runner stage
 FROM node:20-alpine AS runner
 WORKDIR /app
 
-# העתקת build + תלויות
+# install only production dependencies
 COPY --from=builder /app/package*.json ./
 RUN npm install --omit=dev
 COPY --from=builder /app/dist ./dist
