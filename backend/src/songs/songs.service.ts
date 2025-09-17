@@ -10,11 +10,22 @@ export class SongsService {
     private readonly repo: Repository<Song>,
   ) {}
 
-  async list(): Promise<Song[]> {
-    return this.repo.find({ order: { band: 'ASC' } });
+  /**
+   * Returns a list of songs ordered by a given field.
+   * @param orderBy - Field to order by (band | name | year). Defaults to 'band'.
+   */
+  async list(orderBy: 'band' | 'name' | 'year' = 'band'): Promise<Song[]> {
+    return this.repo.find({ order: { [orderBy]: 'ASC' } });
   }
 
-  async addMany(songs: Song[]) {
-    return this.repo.save(songs);
+  /**
+   * Inserts or updates multiple songs in the database.
+   * Ensures no duplicates by using (name, band, year) as a composite key.
+   * @param rows - Array of songs (name, band, year).
+   * @returns number of inserted/updated records
+   */
+  async upsertMany(rows: Array<{ name: string; band: string; year: number }>) {
+    await this.repo.upsert(rows, ['name', 'band', 'year']);
+    return { total: rows.length };
   }
 }

@@ -1,18 +1,30 @@
-version: '3.9'
-
 services:
   db:
     image: postgres:16
     container_name: songsdb
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: songsdb
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    environment:
+      PORT: 3000
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
 
 volumes:
   db_data:

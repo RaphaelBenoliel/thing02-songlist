@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, Unique } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, Unique, Index } from 'typeorm';
 
 @Entity('songs')
 @Unique('uq_song_band_year', ['name', 'band', 'year'])
@@ -6,12 +6,14 @@ export class Song {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', length: 300 })
+  @Column({ length: 300 })
+  @Index()
   name: string;
 
-  @Column({ type: 'varchar', length: 200 })
+  @Column({ length: 200 })
+  @Index()
   band: string;
 
-  @Column({ type: 'int' })
+  @Column('int')
   year: number;
 }
