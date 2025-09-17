@@ -184,15 +184,24 @@ You’ll need a local PostgreSQL instance and environment variables set (see **C
 
 ## Configuration
 
-The Docker setup provides sane defaults. If you run locally, set these (e.g., `.env` in `backend/`):
+Docker (root `.env`)
+Create a `.env` file in the **project root** (next to `docker-compose.yml`). Docker Compose
+loads it automatically and injects variables to the `db` and `backend` services.
 
 ```env
-# backend/.env
-DB_HOST=localhost       # or songsdb when using docker compose
+# --- Postgres (service: db) ---
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=songsdb
+
+# --- Backend DB config ---
+DB_HOST=songsdb
 DB_PORT=5432
 DB_USER=postgres
-DB_PASS=postgres
+DB_PASSWORD=postgres
 DB_NAME=songsdb
+
+# --- CORS (Frontend) ---
 CORS_ORIGIN=http://localhost:5173
 ```
 

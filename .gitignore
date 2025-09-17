@@ -1,0 +1,6 @@
+# env files
+.env
+.env.*
+
+# OS
+.DS_Store
