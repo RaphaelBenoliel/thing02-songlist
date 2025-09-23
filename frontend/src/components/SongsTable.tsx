@@ -4,11 +4,13 @@ import "./SongsTable.css";
 
 interface Props {
   songs: Song[];
+  onClear?: () => void; // optional clear handler
 }
+
 
 type OrderKey = "name" | "band" | "year";
 
-export default function SongsTable({ songs }: Props) {
+export default function SongsTable({ songs, onClear }: Props) {
   // Sorting
   const [orderBy, setOrderBy] = useState<OrderKey>("band");
   const [direction, setDirection] = useState<"asc" | "desc">("asc");
@@ -18,21 +20,20 @@ export default function SongsTable({ songs }: Props) {
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(1);
 
-  // Normalize query
-  const q = query.trim().toLowerCase();
+  const normalizedQuery = query.trim().toLowerCase();
 
   // Filter
   const filtered = useMemo(() => {
-    if (!q) return songs;
+    if (!normalizedQuery) return songs;
     return songs.filter((s) => {
       const yearStr = String(s.year ?? "");
       return (
-        s.name.toLowerCase().includes(q) ||
-        s.band.toLowerCase().includes(q) ||
-        yearStr.includes(q)
+        s.name.toLowerCase().includes(normalizedQuery) ||
+        s.band.toLowerCase().includes(normalizedQuery) ||
+        yearStr.includes(normalizedQuery)
       );
     });
-  }, [songs, q]);
+  }, [songs, normalizedQuery]);
 
   // Sort
   const sorted = useMemo(() => {
@@ -50,13 +51,14 @@ export default function SongsTable({ songs }: Props) {
   // Pagination
   const total = sorted.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  useEffect(() => {
-    // reset page if query/pageSize change
-    setPage(1);
-  }, [q, pageSize]);
 
-  // clamp page if source changed (safety)
   useEffect(() => {
+    // reset page when query/pageSize changes
+    setPage(1);
+  }, [normalizedQuery, pageSize]);
+
+  useEffect(() => {
+    // clamp page if totalPages shrinks
     if (page > totalPages) setPage(totalPages);
   }, [page, totalPages]);
 
@@ -101,6 +103,11 @@ export default function SongsTable({ songs }: Props) {
               <option value={50}>50</option>
             </select>
           </label>
+            {onClear && (
+              <button className="clear-btn" onClick={onClear}>
+                Clear List
+              </button>
+    )}
         </div>
       </div>
 

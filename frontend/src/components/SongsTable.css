@@ -171,3 +171,18 @@ tbody tr:hover { background: #e0f2fe; }
 @media (max-width: 720px) {
   .search-input { flex-basis: auto; }
 }
+.clear-btn {
+  margin-left: 12px;
+  padding: 8px 14px;
+  background: #ef4444; /* red */
+  color: white;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+.clear-btn:hover {
+  background: #dc2626;
+  transform: scale(1.03);
+}

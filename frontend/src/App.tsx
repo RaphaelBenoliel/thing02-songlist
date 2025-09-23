@@ -1,22 +1,20 @@
 import { useState, useEffect } from "react";
-import UploadButton from "./components/UploadButton";
+import { fetchSongs, uploadSongs, clearSongs } from "./services/songsApi";
 import SongsTable from "./components/SongsTable";
+import UploadButton from "./components/UploadButton";
 import type { Song } from "./types";
-import "./App.css";
-
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "./App.css";
 
 function App() {
   const [songs, setSongs] = useState<Song[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchSongs = async () => {
+  const loadSongs = async () => {
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:3000/api/songs");
-      if (!res.ok) throw new Error("Failed to load songs");
-      const data = await res.json();
+      const data = await fetchSongs();
       setSongs(data);
     } catch (e) {
       toast.error("Failed to load songs");
@@ -26,26 +24,30 @@ function App() {
   };
 
   useEffect(() => {
-    fetchSongs();
+    loadSongs();
   }, []);
 
   const handleUpload = async (file: File) => {
-    const formData = new FormData();
-    formData.append("file", file);
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:3000/api/songs/upload", {
-        method: "POST",
-        body: formData,
-      });
-      if (!res.ok) {
-        const msg = await res.text();
-        throw new Error(msg || "Upload failed");
-      }
+      await uploadSongs(file);
       toast.success("Songs uploaded successfully!");
-      await fetchSongs();
+      await loadSongs();
     } catch (e) {
       toast.error("Upload failed. Please check the file.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClear = async () => {
+    try {
+      setLoading(true);
+      await clearSongs();
+      setSongs([]); // reset locally
+      toast.success("Song list cleared!");
+    } catch (e) {
+      toast.error("Failed to clear songs");
     } finally {
       setLoading(false);
     }
@@ -74,7 +76,7 @@ function App() {
             🎶 No songs uploaded yet. <b>Upload a CSV to get started!</b>
           </div>
         ) : (
-          <SongsTable songs={songs} />
+          <SongsTable songs={songs} onClear={handleClear} />
         )}
       </div>
 
