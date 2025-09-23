@@ -1,10 +1,12 @@
-.upload-wrapper{
+@import "../styles/variables.css";
+
+.upload-wrapper {
   display:flex;
   flex-direction:column;
   align-items:center;
 }
 
-.upload-btn{
+.upload-btn {
   display:inline-flex;
   align-items:center;
   gap:10px;
@@ -12,28 +14,28 @@
   font-size:16px;
   font-weight:700;
   color:#fff;
-  background: linear-gradient(270deg, #ec4899, #9333ea);
+  background: var(--gradient-brand);
   background-size:200% 200%;
-  border-radius:12px;
+  border-radius: var(--radius-lg);
   cursor:pointer;
   box-shadow:0 6px 18px rgba(147,51,234,.35);
-  transition:transform .2s ease, box-shadow .2s ease;
+  transition: var(--transition);
   animation:gradientFlow 6s ease infinite;
 }
-.upload-btn:hover{
+.upload-btn:hover {
   transform:translateY(-3px);
   box-shadow:0 10px 24px rgba(147,51,234,.5);
 }
-.upload-btn input{ display:none; }
+.upload-btn input { display:none; }
 
-.upload-hint{
+.upload-hint {
   margin-top:10px;
   font-size:14px;
-  color:#64748b;
+  color: var(--color-muted);
   font-style:italic;
 }
 
-@keyframes gradientFlow{
+@keyframes gradientFlow {
   0%{ background-position:0% 50%; }
   50%{ background-position:100% 50%; }
   100%{ background-position:0% 50%; }
