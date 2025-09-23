@@ -81,4 +81,12 @@ export class SongsService {
       );
     }
   }
+  async clearAll() {
+    try {
+      await this.repo.clear(); // deletes all rows in songs table
+      return { ok: true, message: 'All songs cleared.' };
+    } catch (e) {
+      throw new BadRequestException('Could not clear songs.');
+    }
+  }
 }

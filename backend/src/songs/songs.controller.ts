@@ -6,6 +6,7 @@ import {
   Query,
   UploadedFile,
   UseInterceptors,
+  Delete,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
@@ -52,6 +53,16 @@ export class SongsController {
     } catch (e) {
       throw new BadRequestException(
         e instanceof Error ? e.message : 'Failed to upload songs',
+      );
+    }
+  }
+  @Delete('clear')
+  async clear() {
+    try {
+      return await this.songs.clearAll();
+    } catch (e) {
+      throw new BadRequestException(
+        e instanceof Error ? e.message : 'Failed to clear songs',
       );
     }
   }
