@@ -16,11 +16,12 @@ A small full-stack app that uploads a CSV of songs, normalizes the data, stores 
 5. [API](#api)
 6. [CSV Format](#csv-format)
 7. [Frontend UI](#frontend-ui)
-8. [Local Development (without Docker)](#local-development-without-docker)
-9. [Configuration](#configuration)
-10. [Troubleshooting](#troubleshooting)
-11. [What Was Evaluated](#what-was-evaluated)
-12. [Author](#author)
+8. [Screenshots](#Screenshots)
+9. [Local Development (without Docker)](#local-development-without-docker)
+10. [Configuration](#configuration)
+11. [Troubleshooting](#troubleshooting)
+12. [What Was Evaluated](#what-was-evaluated)
+13. [Author](#author)
 
 ---
 
